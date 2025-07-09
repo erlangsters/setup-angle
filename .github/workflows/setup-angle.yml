@@ -1,0 +1,69 @@
+name: Setup ANGLE
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+    - id: angle
+      uses: ./
+    - run: |
+        test -f "${{ steps.angle.outputs.angle-location }}/include/EGL/egl.h"
+        test -f "${{ steps.angle.outputs.angle-location }}/include/GLES2/gl2.h"
+        test -f "${{ steps.angle.outputs.angle-location }}/include/GLES3/gl3.h"
+        test -f "${{ steps.angle.outputs.angle-location }}/lib/libEGL.dylib"
+        test -f "${{ steps.angle.outputs.angle-location }}/lib/libGLESv2.dylib"
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    - id: angle
+      uses: ./
+    - shell: pwsh
+      run: |
+        if (-Not (Test-Path "${{ steps.angle.outputs.angle-location }}\include\EGL\egl.h")) {
+          throw "Missing file"
+        }
+        if (-Not (Test-Path "${{ steps.angle.outputs.angle-location }}\include\GLES2\gl2.h")) {
+          throw "Missing file"
+        }
+        if (-Not (Test-Path "${{ steps.angle.outputs.angle-location }}\include\GLES3\gl3.h")) {
+          throw "Missing file"
+        }
+        if (-Not (Test-Path "${{ steps.angle.outputs.angle-location }}\lib\libEGL.lib")) {
+          throw "Missing file"
+        }
+        if (-Not (Test-Path "${{ steps.angle.outputs.angle-location }}\lib\libGLESv2.lib")) {
+          throw "Missing file"
+        }
+        if (-Not (Test-Path "${{ steps.angle.outputs.angle-location }}\bin\libEGL.dll ")) {
+          throw "Missing file"
+        }
+        if (-Not (Test-Path "${{ steps.angle.outputs.angle-location }}\bin\libGLESv2.dll")) {
+          throw "Missing file"
+        }
+
+  specific-branch:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./
+      with:
+        angle-branch: fdff117
+
+  # Check if specifying an unavailable branch is correctly causing the action
+  # to stop early and display the error message.
+  unavailable-branch:
+    runs-on: macos-latest
+    continue-on-error: true
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./
+      with:
+        angle-branch: abc
