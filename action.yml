@@ -8,8 +8,13 @@ branding:
   color: purple
   icon: code
 inputs:
-  branch:
-    description: The ANGLE branch to use.
+  angle-branch:
+    description: Branch of ANGLE to set up.
+outputs:
+  angle-branch:
+    description: ANGLE branch that was installed.
+  angle-location:
+    description: The absolute path of the ANGLE installation location.
 runs:
   using: node20
   main: setup-angle.js
